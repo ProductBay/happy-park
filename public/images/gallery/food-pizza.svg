@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900">
+<rect width="1000" height="900" fill="#f4cd83"/>
+<circle cx="500" cy="390" r="260" fill="#e68b49"/>
+<circle cx="500" cy="390" r="215" fill="#f7dfaa"/>
+<circle cx="420" cy="310" r="40" fill="#f07b61"/>
+<circle cx="590" cy="440" r="46" fill="#f07b61"/>
+<circle cx="360" cy="485" r="35" fill="#3e8d5d"/>
+<circle cx="640" cy="300" r="33" fill="#3e8d5d"/>
+<text x="70" y="790" font-family="Arial" font-size="70" font-weight="900" fill="#14271e">EAT HAPPY</text>
+</svg>

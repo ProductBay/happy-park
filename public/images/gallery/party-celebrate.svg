@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900">
+<rect width="1000" height="900" fill="#f8d8cd"/>
+<circle cx="170" cy="170" r="75" fill="#f8b84e"/>
+<circle cx="800" cy="200" r="105" fill="#7fc8d7"/>
+<rect x="250" y="340" width="500" height="300" rx="55" fill="#fff" opacity=".62"/>
+<path d="M380 340 L500 180 L620 340" fill="#a7d75b"/>
+<text x="70" y="790" font-family="Arial" font-size="70" font-weight="900" fill="#14271e">CELEBRATE</text>
+</svg>

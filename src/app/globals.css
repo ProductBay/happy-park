@@ -1,26 +1,289 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --hp-ink: #14271e;
+  --hp-ink-soft: #34483e;
+  --hp-forest: #164b33;
+  --hp-forest-deep: #0d3423;
+  --hp-leaf: #3e8d5d;
+  --hp-lime: #a7d75b;
+  --hp-sun: #f8b84e;
+  --hp-coral: #f07b61;
+  --hp-sky: #7fc8d7;
+  --hp-cream: #fbf7ed;
+  --hp-paper: #fffdf8;
+  --hp-white: #ffffff;
+  --hp-border: rgba(20, 39, 30, 0.12);
+
+  --background: var(--hp-paper);
+  --foreground: var(--hp-ink);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
+  background: var(--hp-paper);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  margin: 0;
+  background:
+    radial-gradient(
+      circle at 10% 0%,
+      rgba(167, 215, 91, 0.12),
+      transparent 30rem
+    ),
+    radial-gradient(
+      circle at 95% 5%,
+      rgba(127, 200, 215, 0.14),
+      transparent 28rem
+    ),
+    var(--hp-paper);
+  color: var(--hp-ink);
   font-family: Arial, Helvetica, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+::selection {
+  background: rgba(167, 215, 91, 0.45);
+  color: var(--hp-forest-deep);
+}
+
+.hp-container {
+  width: min(100% - 2rem, 1240px);
+  margin-inline: auto;
+}
+
+@media (min-width: 768px) {
+  .hp-container {
+    width: min(100% - 4rem, 1240px);
+  }
+}
+
+.hp-section {
+  padding-block: 5rem;
+}
+
+@media (min-width: 1024px) {
+  .hp-section {
+    padding-block: 7rem;
+  }
+}
+
+.hp-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  border-radius: 999px;
+  border: 1px solid rgba(22, 75, 51, 0.12);
+  background: rgba(255, 255, 255, 0.72);
+  padding: 0.48rem 0.78rem;
+  color: var(--hp-forest);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  backdrop-filter: blur(16px);
+}
+
+.hp-display {
+  letter-spacing: -0.055em;
+  line-height: 0.94;
+  text-wrap: balance;
+}
+
+.hp-heading {
+  letter-spacing: -0.042em;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+.hp-copy {
+  color: var(--hp-ink-soft);
+  line-height: 1.8;
+}
+
+.hp-glass {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow:
+    0 30px 80px rgba(20, 39, 30, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(20px);
+}
+
+.hp-grid-overlay {
+  background-image:
+    linear-gradient(rgba(20, 39, 30, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(20, 39, 30, 0.035) 1px, transparent 1px);
+  background-size: 42px 42px;
+}
+
+.hp-orb {
+  filter: blur(1px);
+  opacity: 0.9;
+}
+
+.hp-card-hover {
+  transition:
+    transform 300ms ease,
+    box-shadow 300ms ease,
+    border-color 300ms ease;
+}
+
+.hp-card-hover:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 70px rgba(20, 39, 30, 0.12);
+  border-color: rgba(22, 75, 51, 0.16);
+}
+
+/* =========================================================
+   HAPPY-PARK MEDIA EXPERIENCE
+   ========================================================= */
+
+.hp-media-reveal {
+  overflow: hidden;
+}
+
+.hp-media-reveal img {
+  transition:
+    transform 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    filter 600ms ease;
+}
+
+.hp-media-reveal:hover img {
+  transform: scale(1.045);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* =========================================================
+   HAPPY-PARK PHASE 1D — FINAL EXPERIENCE POLISH
+   ========================================================= */
+
+body {
+  overflow-x: hidden;
+}
+
+.hp-container {
+  position: relative;
+}
+
+@media (max-width: 639px) {
+  .hp-section {
+    padding-block: 4rem;
+  }
+
+  .hp-heading {
+    letter-spacing: -0.045em;
+  }
+}
+
+@media (hover: hover) {
+  a,
+  button {
+    transition-property:
+      color,
+      background-color,
+      border-color,
+      opacity,
+      transform,
+      box-shadow;
+    transition-duration: 220ms;
+  }
+}
+
+@media (max-width: 767px) {
+  .hp-card-hover:hover {
+    transform: none;
+  }
+}
+
+.hp-scroll-fade {
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 4%,
+    black 96%,
+    transparent
+  );
+}
+
+@supports not (backdrop-filter: blur(20px)) {
+  .hp-glass {
+    background: rgba(255, 255, 255, 0.94);
+  }
+}
+
+:focus-visible {
+  outline: 3px solid rgba(167, 215, 91, 0.85);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   A'Dash confidential client preview
+   ========================================================= */
+
+@keyframes hpPreviewLogoEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scale(0.96);
+    filter: blur(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes hpPreviewModalEnter {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.975);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.hp-preview-logo-enter {
+  animation: hpPreviewLogoEnter 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.hp-preview-modal-enter {
+  animation: hpPreviewModalEnter 480ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-preview-logo-enter,
+  .hp-preview-modal-enter {
+    animation: none;
+  }
 }

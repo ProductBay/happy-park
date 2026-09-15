@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1100">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#174c34"/>
+      <stop offset="55%" stop-color="#2f7d50"/>
+      <stop offset="100%" stop-color="#91c855"/>
+    </linearGradient>
+    <radialGradient id="sun">
+      <stop offset="0%" stop-color="#ffd886"/>
+      <stop offset="100%" stop-color="#f3ae45"/>
+    </radialGradient>
+  </defs>
+  <rect width="1600" height="1100" fill="url(#bg)"/>
+  <circle cx="1280" cy="210" r="150" fill="url(#sun)" opacity=".95"/>
+  <path d="M0 780 Q300 570 600 760 T1200 680 T1600 730 V1100 H0Z" fill="#dff0b9"/>
+  <path d="M0 850 Q380 690 760 850 T1600 790 V1100 H0Z" fill="#f8d8cd" opacity=".9"/>
+  <circle cx="300" cy="520" r="120" fill="#7fc8d7" opacity=".9"/>
+  <circle cx="510" cy="440" r="72" fill="#f8b84e"/>
+  <circle cx="760" cy="560" r="100" fill="#f07b61"/>
+  <rect x="1020" y="500" width="290" height="220" rx="36" fill="#fff" opacity=".15"/>
+  <text x="90" y="150" fill="#fff" font-family="Arial" font-size="34" font-weight="700" opacity=".65">HAPPY-PARK · SOUTHFIELD</text>
+  <text x="90" y="250" fill="#fff" font-family="Arial" font-size="104" font-weight="900">PLAY.</text>
+  <text x="90" y="350" fill="#fff" font-family="Arial" font-size="104" font-weight="900">EAT. SHOP.</text>
+  <text x="90" y="450" fill="#fff" font-family="Arial" font-size="104" font-weight="900">ENJOY.</text>
+</svg>

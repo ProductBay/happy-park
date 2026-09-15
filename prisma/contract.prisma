@@ -1,0 +1,534 @@
+// use prisma-8
+// =========================================================
+// HAPPY-PARK BOOKING DOMAIN
+// Phase 2B
+//
+// Architecture principles:
+// - UUID identities
+// - historical price snapshots
+// - provider-neutral payment state
+// - QR-ready admission passes
+// - auditable check-in events
+// - configurable availability/capacity
+// - no dependency on a payment provider
+// =========================================================
+
+// =========================================================
+// ENUMS
+// =========================================================
+enum BookingStatus {
+  @@type("pg/text@1")
+
+  Draft = "draft"
+  PendingPayment = "pending_payment"
+  Confirmed = "confirmed"
+  PartiallyCheckedIn = "partially_checked_in"
+  CheckedIn = "checked_in"
+  Completed = "completed"
+  Cancelled = "cancelled"
+  Expired = "expired"
+  Refunded = "refunded"
+}
+
+enum PaymentStatus {
+  @@type("pg/text@1")
+
+  NotRequired = "not_required"
+  Pending = "pending"
+  Authorized = "authorized"
+  Paid = "paid"
+  Failed = "failed"
+  PartiallyRefunded = "partially_refunded"
+  Refunded = "refunded"
+}
+
+enum GuestType {
+  @@type("pg/text@1")
+
+  Adult = "adult"
+  Child = "child"
+}
+
+enum PassStatus {
+  @@type("pg/text@1")
+
+  Active = "active"
+  Used = "used"
+  Revoked = "revoked"
+  Cancelled = "cancelled"
+  Expired = "expired"
+}
+
+enum CheckInStatus {
+  @@type("pg/text@1")
+
+  Accepted = "accepted"
+  Rejected = "rejected"
+  AlreadyUsed = "already_used"
+  Invalid = "invalid"
+  Revoked = "revoked"
+}
+
+enum ExtraPricingMode {
+  @@type("pg/text@1")
+
+  PerBooking = "per_booking"
+  PerGuest = "per_guest"
+}
+
+enum CapacityStatus {
+  @@type("pg/text@1")
+
+  Open = "open"
+  Limited = "limited"
+  SoldOut = "sold_out"
+  Closed = "closed"
+}
+
+// =========================================================
+// ADMISSION PACKAGES
+// =========================================================
+model AdmissionPackage {
+  id              Uuid                      @id @default(uuid())
+  slug            String                    @unique
+  name            String
+  description     String?
+
+  currency        String                    @default("JMD")
+  adultPriceMinor Int
+  childPriceMinor Int
+
+  isActive        Boolean                   @default(true)
+  isFeatured      Boolean                   @default(false)
+
+  badge           String?
+
+  minGuests       Int                       @default(1)
+  maxGuests       Int?
+
+  sortOrder       Int                       @default(0)
+
+  validFrom       DateTime?
+  validUntil      DateTime?
+
+  createdAt       DateTime                  @default(now())
+  updatedAt       temporal.updatedAt()
+
+  features        AdmissionPackageFeature[]
+  bookingPackages BookingPackageSnapshot[]
+
+  @@index([isActive, sortOrder])
+  @@index([validFrom, validUntil])
+  @@map("admission_packages")
+}
+
+// =========================================================
+// PACKAGE FEATURES
+// =========================================================
+model AdmissionPackageFeature {
+  id        Uuid             @id @default(uuid())
+  packageId Uuid
+
+  label     String
+  sortOrder Int              @default(0)
+
+  createdAt DateTime         @default(now())
+
+  package   AdmissionPackage @relation(fields:[packageId], references:[id], onDelete: Cascade)
+
+  @@index([packageId, sortOrder])
+  @@map("admission_package_features")
+}
+
+// =========================================================
+// BOOKING EXTRAS / ADD-ONS
+// =========================================================
+model BookingExtraDefinition {
+  id            Uuid                 @id @default(uuid())
+  slug          String               @unique
+  name          String
+  description   String?
+
+  currency      String               @default("JMD")
+  priceMinor    Int
+
+  pricingMode   ExtraPricingMode     @default(PerBooking)
+
+  isActive      Boolean              @default(true)
+  sortOrder     Int                  @default(0)
+
+  maxQuantity   Int?
+
+  createdAt     DateTime             @default(now())
+  updatedAt     temporal.updatedAt()
+
+  bookingExtras BookingExtra[]
+
+  @@index([isActive, sortOrder])
+  @@map("booking_extra_definitions")
+}
+
+// =========================================================
+// MAIN VISIT BOOKING
+// =========================================================
+model Booking {
+  id                     Uuid                         @id @default(uuid())
+
+  reference              String                       @unique
+
+  status                 BookingStatus                @default(Draft)
+  paymentStatus          PaymentStatus                @default(Pending)
+
+  visitDate              Date
+
+  currency               String                       @default("JMD")
+
+  admissionSubtotalMinor Int                          @default(0)
+  extrasSubtotalMinor    Int                          @default(0)
+  discountMinor          Int                          @default(0)
+  taxMinor               Int                          @default(0)
+  totalMinor             Int                          @default(0)
+
+  adultCount             Int                          @default(0)
+  childCount             Int                          @default(0)
+  guestCount             Int                          @default(0)
+
+  customerFirstName      String?
+  customerLastName       String?
+  customerEmail          String?
+  customerPhone          String?
+
+  customerId             Uuid?
+
+  notes                  String?
+
+  confirmationSentAt     DateTime?
+  cancelledAt            DateTime?
+  cancellationReason     String?
+
+  expiresAt              DateTime?
+
+  createdAt              DateTime                     @default(now())
+  updatedAt              temporal.updatedAt()
+
+  packageSnapshot        BookingPackageSnapshot?
+  guests                 BookingGuest[]
+  extras                 BookingExtra[]
+  passes                 BookingPass[]
+  admissionFulfillment   BookingAdmissionFulfillment?
+  passAccess             BookingPassAccess[]
+  events                 BookingEvent[]
+
+  @@index([visitDate, status])
+  @@index([customerEmail])
+  @@index([customerPhone])
+  @@index([customerId])
+  @@index([paymentStatus])
+  @@map("bookings")
+}
+
+// =========================================================
+// IMMUTABLE PACKAGE SNAPSHOT
+//
+// IMPORTANT:
+// If Happy-Park changes package pricing later,
+// existing bookings retain the original price/name.
+// =========================================================
+model BookingPackageSnapshot {
+  id                  Uuid              @id @default(uuid())
+
+  bookingId           Uuid              @unique
+  admissionPackageId  Uuid?
+
+  packageSlug         String
+  packageName         String
+  packageDescription  String?
+
+  currency            String
+
+  adultUnitPriceMinor Int
+  childUnitPriceMinor Int
+
+  adultQuantity       Int
+  childQuantity       Int
+
+  subtotalMinor       Int
+
+  createdAt           DateTime          @default(now())
+
+  booking             Booking           @relation(fields:[bookingId], references:[id], onDelete: Cascade)
+
+  admissionPackage    AdmissionPackage? @relation(fields:[admissionPackageId], references:[id], onDelete: SetNull)
+
+  @@index([admissionPackageId])
+  @@map("booking_package_snapshots")
+}
+
+// =========================================================
+// BOOKING GUEST LINES
+//
+// One line may represent multiple guests of the same type.
+// Individual QR passes are created separately.
+// =========================================================
+model BookingGuest {
+  id             Uuid      @id @default(uuid())
+  bookingId      Uuid
+
+  guestType      GuestType
+  quantity       Int
+
+  unitPriceMinor Int
+  subtotalMinor  Int
+
+  createdAt      DateTime  @default(now())
+
+  booking        Booking   @relation(fields:[bookingId], references:[id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([guestType])
+  @@map("booking_guests")
+}
+
+// =========================================================
+// SELECTED BOOKING EXTRAS
+//
+// Snapshot values protect historical bookings when an
+// administrator later changes an extra's price or name.
+// =========================================================
+model BookingExtra {
+  id               Uuid                    @id @default(uuid())
+
+  bookingId        Uuid
+  definitionId     Uuid?
+
+  extraSlug        String
+  extraName        String
+  extraDescription String?
+
+  pricingMode      ExtraPricingMode
+
+  currency         String
+
+  unitPriceMinor   Int
+  quantity         Int
+  subtotalMinor    Int
+
+  createdAt        DateTime                @default(now())
+
+  booking          Booking                 @relation(fields:[bookingId], references:[id], onDelete: Cascade)
+
+  definition       BookingExtraDefinition? @relation(fields:[definitionId], references:[id], onDelete: SetNull)
+
+  @@index([bookingId])
+  @@index([definitionId])
+  @@map("booking_extras")
+}
+
+// =========================================================
+// QR-READY ADMISSION PASSES
+//
+// qrToken is opaque.
+// No customer PII should ever be encoded directly in the QR.
+// =========================================================
+model BookingPass {
+  id             Uuid                 @id @default(uuid())
+
+  bookingId      Uuid
+
+  passNumber     String               @unique
+  qrTokenHash    String               @unique
+  tokenVersion   Int                  @default(1)
+  guestType      GuestType
+  sequenceNumber Int
+
+  status         PassStatus           @default(Active)
+
+  validDate      Date
+
+  firstUsedAt    DateTime?
+  revokedAt      DateTime?
+  revokeReason   String?
+
+  createdAt      DateTime             @default(now())
+  updatedAt      temporal.updatedAt()
+
+  booking        Booking              @relation(fields:[bookingId], references:[id], onDelete: Cascade)
+
+  checkIns       CheckIn[]
+
+  @@unique([bookingId, sequenceNumber])
+  @@index([bookingId, status])
+  @@index([validDate, status])
+  @@map("booking_passes")
+}
+
+// =========================================================
+// CHECK-IN AUDIT EVENTS
+//
+// Keep every scan attempt instead of overwriting one field.
+// This gives Happy-Park a proper admission audit trail.
+// =========================================================
+model CheckIn {
+  id              Uuid          @id @default(uuid())
+
+  passId          Uuid
+  bookingId       Uuid
+
+  status          CheckInStatus
+
+  scannedAt       DateTime      @default(now())
+
+  gate            String?
+  deviceId        String?
+
+  checkedInById   String?
+  checkedInByName String?
+
+  reason          String?
+
+  metadata        Json?
+
+  pass            BookingPass   @relation(fields:[passId], references:[id], onDelete: Cascade)
+
+  @@index([passId, scannedAt])
+  @@index([bookingId, scannedAt])
+  @@index([status, scannedAt])
+  @@map("check_ins")
+}
+
+// =========================================================
+// DAILY CAPACITY
+//
+// Allows Happy-Park management to close dates,
+// cap attendance or temporarily override capacity.
+// =========================================================
+model VisitDayCapacity {
+  id              Uuid                 @id @default(uuid())
+
+  visitDate       Date                 @unique
+
+  status          CapacityStatus       @default(Open)
+
+  maxGuests       Int?
+  reservedGuests  Int                  @default(0)
+
+  bookingCutoffAt DateTime?
+
+  publicMessage   String?
+  internalNote    String?
+
+  createdAt       DateTime             @default(now())
+  updatedAt       temporal.updatedAt()
+
+  @@index([status])
+  @@map("visit_day_capacities")
+}
+
+// =========================================================
+// BOOKING AUDIT / LIFECYCLE EVENTS
+// =========================================================
+model BookingEvent {
+  id          Uuid     @id @default(uuid())
+
+  bookingId   Uuid
+
+  type        String
+  actorType   String?
+  actorId     String?
+
+  description String?
+
+  metadata    Json?
+
+  createdAt   DateTime @default(now())
+
+  booking     Booking  @relation(fields:[bookingId], references:[id], onDelete: Cascade)
+
+  @@index([bookingId, createdAt])
+  @@index([type, createdAt])
+  @@map("booking_events")
+}
+
+model BookingPassCredential {
+  id                   Uuid                 @id @default(uuid())
+  passId               Uuid                 @unique
+  encryptedCredential  String
+  initializationVector String
+  authenticationTag    String
+  keyVersion           Int                  @default(1)
+  createdAt            DateTime             @default(now())
+  updatedAt            temporal.updatedAt()
+
+  pass                 BookingPass          @relation(fields:[passId], references:[id], onDelete: Cascade)
+
+  @@index([passId])
+}
+
+model BookingPassAccess {
+  id             Uuid                     @id @default(uuid())
+  bookingId      Uuid
+  tokenHash      String                   @unique
+  expiresAt      DateTime
+  revokedAt      DateTime?
+  lastAccessedAt DateTime?
+  accessCount    Int                      @default(0)
+  createdAt      DateTime                 @default(now())
+  updatedAt      temporal.updatedAt()
+
+  booking        Booking                  @relation(fields:[bookingId], references:[id], onDelete: Cascade)
+
+  @@index([bookingId])
+  @@index([expiresAt])
+  secret         BookingPassAccessSecret?
+}
+
+model BookingPassAccessSecret {
+  id                   Uuid                 @id @default(uuid())
+  accessId             Uuid                 @unique
+  encryptedToken       String
+  initializationVector String
+  authenticationTag    String
+  keyVersion           Int                  @default(1)
+  createdAt            DateTime             @default(now())
+  updatedAt            temporal.updatedAt()
+
+  access               BookingPassAccess    @relation(fields:[accessId], references:[id], onDelete: Cascade)
+
+  @@index([accessId])
+}
+
+model BookingPassSecurityEvent {
+  id              Uuid        @id @default(uuid())
+  passId          Uuid
+  bookingId       Uuid
+  action          String
+  previousVersion Int
+  newVersion      Int
+  reason          String
+  performedById   String?
+  performedByName String?
+  metadata        Json?
+  createdAt       DateTime    @default(now())
+
+  pass            BookingPass @relation(fields:[passId], references:[id], onDelete: Cascade)
+
+  @@index([passId])
+  @@index([bookingId])
+  @@index([createdAt])
+}
+
+model BookingAdmissionFulfillment {
+  id               Uuid                 @id @default(uuid())
+  bookingId        Uuid                 @unique
+  providerEventId  String               @unique
+  paymentReference String?
+  passesIssuedAt   DateTime?
+  accessIssuedAt   DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime             @default(now())
+  updatedAt        temporal.updatedAt()
+
+  booking          Booking              @relation(fields:[bookingId], references:[id], onDelete: Cascade)
+
+  @@index([providerEventId])
+}

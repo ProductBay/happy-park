@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900">
+<rect width="1000" height="900" fill="#cee8d5"/>
+<path d="M500 650 C250 520 220 250 480 210 C540 390 520 540 500 650Z" fill="#3e8d5d"/>
+<path d="M510 650 C770 520 800 270 560 225 C500 390 500 540 510 650Z" fill="#70ad75"/>
+<circle cx="500" cy="320" r="80" fill="#a7d75b" opacity=".7"/>
+<text x="70" y="790" font-family="Arial" font-size="70" font-weight="900" fill="#14271e">NATURAL SHOP</text>
+</svg>

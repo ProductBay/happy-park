@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 900">
+<rect width="1000" height="900" fill="#cdebf0"/>
+<circle cx="720" cy="180" r="110" fill="#f8b84e"/>
+<path d="M0 610 Q240 420 480 590 T1000 540 V900 H0Z" fill="#a7d75b"/>
+<circle cx="300" cy="480" r="80" fill="#f07b61"/>
+<circle cx="510" cy="430" r="95" fill="#164b33"/>
+<circle cx="700" cy="500" r="70" fill="#7fc8d7"/>
+<text x="70" y="790" font-family="Arial" font-size="70" font-weight="900" fill="#14271e">FAMILY DAYS</text>
+</svg>

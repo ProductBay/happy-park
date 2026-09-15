@@ -36,6 +36,25 @@ yarn-error.log*
 # vercel
 .vercel
 
+# local deployment metadata
+.netlify
+
+# generated AI-agent skills (restored by Prisma postinstall)
+/.agents/
+/.claude/
+/.cursor/
+/.devin/
+
+# local editor and Prisma working backups
+*.bak
+/prisma/*.before-*.prisma
+/prisma/*.pre-*.prisma
+/prisma/*diagnostic*.txt
+/prisma/*snapshot*.txt
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.env
+.env.local
