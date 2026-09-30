@@ -3,29 +3,41 @@ import "./globals.css";
 import { ClientPreviewGate } from "@/components/client-preview/client-preview-gate";
 import { HappyParkCartProvider } from "@/lib/cart/cart-provider";
 import { ExperienceShell } from "@/components/layout/experience-shell";
+import { siteConfig } from "@/config/site";
+
+const socialTitle = "Happy-Park | Fun, Food, Family & Experiences";
+const socialDescription =
+  "Happy-Park brings family fun, food, parties, school experiences and HER Hair & Wellness together in Southfield, St. Elizabeth, Jamaica.";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Happy-Park | Play. Eat. Shop. Enjoy.",
+    default: socialTitle,
     template: "%s | Happy-Park",
   },
-  description:
-    "Happy-Park is a family entertainment, food, celebration and shopping destination in Southfield, St. Elizabeth, Jamaica.",
-  keywords: [
-    "Happy-Park",
-    "Southfield Jamaica",
-    "St Elizabeth attractions",
-    "family park Jamaica",
-    "birthday parties Jamaica",
-    "pizza Southfield Jamaica",
-    "family entertainment Jamaica",
-  ],
+  description: socialDescription,
+  applicationName: siteConfig.name,
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: "Family Entertainment",
+  icons: {
+    icon: { url: "/icon", type: "image/png", sizes: "64x64" },
+    shortcut: "/icon",
+    apple: { url: "/apple-icon", type: "image/png", sizes: "180x180" },
+  },
   openGraph: {
-    title: "Happy-Park | Play. Eat. Shop. Enjoy.",
-    description:
-      "Family fun, birthday celebrations, food, natural products and delivery — all from Happy-Park.",
+    title: socialTitle,
+    description: socialDescription,
     type: "website",
+    siteName: siteConfig.name,
+    url: siteConfig.url,
     locale: "en_JM",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: socialTitle,
+    description: socialDescription,
+    images: [{ url: "/opengraph-image", alt: "Happy-Park — Fun, Food, Family & Experiences in Southfield, St. Elizabeth, Jamaica" }],
   },
 };
 

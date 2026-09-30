@@ -1,5 +1,6 @@
 export const siteConfig = {
   name: "Happy-Park",
+  url: "https://happy-park.netlify.app",
   description:
     "A family destination in Southfield, St. Elizabeth, Jamaica — play, celebrate, eat, shop and enjoy.",
   location: "Southfield, St. Elizabeth, Jamaica",

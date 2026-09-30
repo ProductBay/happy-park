@@ -1,3 +1,5 @@
+import type { Metadata } from "next";
+
 import { AttractionsShowcase } from "@/components/home/attractions-showcase";
 import { CommerceFeature } from "@/components/home/commerce-feature";
 import { GalleryStrip } from "@/components/home/gallery-strip";
@@ -12,6 +14,8 @@ import { VisitPlanner } from "@/components/home/visit-planner";
 import { WhatsappCta } from "@/components/home/whatsapp-cta";
 import { HerHomeDiscovery } from "@/components/her/her-home-discovery";
 import { FoodDeliveryZone } from "@/components/food/food-delivery-zone";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default function Home() {
   return (
