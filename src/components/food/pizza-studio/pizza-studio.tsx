@@ -20,6 +20,8 @@ import {
 } from "lucide-react";
 import { useMemo, useState } from "react";
 
+import { PizzaCanvas } from "./pizza-canvas";
+
 import {
   formatPizzaStudioMoney,
   getPizzaStudioExtrasByCategory,
@@ -73,39 +75,10 @@ const extraCategories: PizzaStudioExtraCategory[] = [
   "natural-juice",
 ];
 
-const toppingVisuals: Record<
-  string,
-  { symbol: string; className: string }
-> = {
-  cheese: { symbol: "●", className: "text-amber-200" },
-  pepperoni: { symbol: "●", className: "text-red-700" },
-  "smoked-turkey-sausage": {
-    symbol: "●",
-    className: "text-amber-900",
-  },
-  arugula: { symbol: "◆", className: "text-emerald-700" },
-  olives: { symbol: "○", className: "text-slate-800" },
-  pineapple: { symbol: "◆", className: "text-yellow-300" },
-  "sweet-corn": { symbol: "•", className: "text-yellow-400" },
-  moringa: { symbol: "✦", className: "text-green-700" },
-  ackee: { symbol: "●", className: "text-yellow-500" },
-  "moringa-blossom": { symbol: "✿", className: "text-lime-700" },
-  anchovies: { symbol: "≈", className: "text-slate-500" },
-  shrimp: { symbol: "C", className: "text-orange-400" },
-  tuna: { symbol: "◆", className: "text-rose-300" },
-  "vegan-cheese": { symbol: "●", className: "text-yellow-100" },
-};
-
-const toppingPositions = [
-  "left-[21%] top-[22%]",
-  "left-[48%] top-[18%]",
-  "right-[20%] top-[28%]",
-  "left-[31%] top-[45%]",
-  "right-[31%] top-[47%]",
-  "left-[20%] bottom-[23%]",
-  "left-[48%] bottom-[17%]",
-  "right-[18%] bottom-[28%]",
-];
+// Retained only for the legacy preview markup kept out of layout during the
+// visual migration. The live scene is rendered by PizzaCanvas.
+const toppingVisuals: Record<string, { symbol: string; className: string }> = {};
+const toppingPositions = ["left-1/2 top-1/2"];
 
 function joinNames(ids: string[], source: Array<{ id: string; name: string }>) {
   return ids
@@ -342,6 +315,7 @@ export function PizzaStudio() {
                       <button
                         type="button"
                         key={size.id}
+                        aria-pressed={active}
                         onClick={() => setSizeId(size.id)}
                         className={[
                           "relative overflow-hidden rounded-[1.5rem] border p-6 text-left transition-all duration-300",
@@ -427,6 +401,7 @@ export function PizzaStudio() {
                       <button
                         key={preset.id}
                         type="button"
+                        aria-pressed={preset.id === presetId}
                         onClick={() => applyPreset(preset.id)}
                         className={[
                           "rounded-2xl border p-4 text-left transition",
@@ -487,6 +462,8 @@ export function PizzaStudio() {
                         <button
                           type="button"
                           key={topping.id}
+                          aria-pressed={active}
+                          aria-label={`${active ? "Remove" : "Add"} ${topping.name}`}
                           onClick={() => toggleTopping(topping.id)}
                           className={[
                             "group rounded-2xl border p-4 text-left transition-all",
@@ -497,7 +474,7 @@ export function PizzaStudio() {
                         >
                           <div className="flex items-center justify-between">
                             <span className="flex h-10 w-10 items-center justify-center rounded-full bg-amber-100 text-lg">
-                              {toppingVisuals[topping.id]?.symbol ?? "•"}
+                              <Pizza className="h-5 w-5 text-orange-700" aria-hidden="true" />
                             </span>
 
                             <span
@@ -545,6 +522,16 @@ export function PizzaStudio() {
                           PIZZA_STUDIO_CONFIG.maxCustomToppings}
                       </p>
                     </div>
+                    {presetId === "full-house" ? (
+                      <div className="mt-3">
+                        <div className="h-2 overflow-hidden rounded-full bg-white/15" role="progressbar" aria-label={`Full House ${toppingIds.length} of ${PIZZA_STUDIO_CONFIG.fullHouseIngredientCount} ingredients selected`} aria-valuemin={0} aria-valuemax={PIZZA_STUDIO_CONFIG.fullHouseIngredientCount} aria-valuenow={toppingIds.length}>
+                          <div className="h-full rounded-full bg-orange-400 transition-[width] motion-reduce:transition-none" style={{ width: `${toppingIds.length / PIZZA_STUDIO_CONFIG.fullHouseIngredientCount * 100}%` }} />
+                        </div>
+                        <p className="mt-2 text-xs font-bold text-orange-300">
+                          FULL HOUSE · {toppingIds.length} / {PIZZA_STUDIO_CONFIG.fullHouseIngredientCount} ingredients selected
+                        </p>
+                      </div>
+                    ) : null}
                   </div>
                 </div>
               )}
@@ -578,6 +565,8 @@ export function PizzaStudio() {
                           <button
                             type="button"
                             key={item.id}
+                            aria-pressed={active}
+                            aria-label={`${active ? "Remove" : "Add"} ${item.name}`}
                             onClick={() => toggleExtra(item.id)}
                             className={[
                               "rounded-2xl border p-4 text-left transition-all",
@@ -775,8 +764,20 @@ export function PizzaStudio() {
           </div>
 
           <aside className="xl:sticky xl:top-28 xl:self-start">
+            <PizzaCanvas
+              sizeId={sizeId}
+              sizeName={selectedSize?.name ?? "Pizza"}
+              inches={selectedSize?.inches ?? 0}
+              crustId={crustId}
+              sauceId={sauceId}
+              cheeseId={cheeseId}
+              toppingIds={toppingIds}
+              extraIds={extraIds}
+              step={step}
+              fullHouseComplete={presetId === "full-house" && toppingIds.length === PIZZA_STUDIO_CONFIG.fullHouseIngredientCount}
+            />
             <div className="overflow-hidden rounded-[2rem] bg-[#07101f] text-white shadow-[0_30px_80px_rgba(15,23,42,0.24)]">
-              <div className="relative overflow-hidden px-6 pb-8 pt-7">
+              <div className="hidden">
                 <div className="absolute -right-20 -top-24 h-64 w-64 rounded-full bg-orange-500/20 blur-3xl" />
                 <div className="absolute -bottom-24 -left-20 h-64 w-64 rounded-full bg-yellow-400/10 blur-3xl" />
 
@@ -955,6 +956,7 @@ function ChoiceSection({
             <button
               type="button"
               key={item.id}
+              aria-pressed={active}
               onClick={() => onSelect(item.id)}
               className={[
                 "rounded-2xl border p-4 text-left transition",

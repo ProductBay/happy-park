@@ -16,7 +16,7 @@ import {
   Star,
 } from "lucide-react";
 
-import { PizzaBuilderPreview } from "@/components/food/pizza-builder-preview";
+import { PizzaStudio } from "@/components/food/pizza-studio";
 
 const menuHighlights = [
   {
@@ -239,7 +239,7 @@ export function FoodStorefrontPreview() {
 
       <section
         id="pizza-studio"
-        className="scroll-mt-24 border-y border-slate-200 bg-white"
+        className="scroll-mt-32 border-y border-slate-200 bg-white sm:scroll-mt-28"
       >
         <div className="mx-auto max-w-7xl px-5 pt-20 text-center sm:px-8 lg:px-12">
           <div className="mx-auto inline-flex items-center gap-2 rounded-full bg-orange-100 px-4 py-2 text-xs font-black uppercase tracking-[0.18em] text-orange-700">
@@ -257,7 +257,7 @@ export function FoodStorefrontPreview() {
           </p>
         </div>
 
-        <PizzaBuilderPreview />
+        <PizzaStudio />
       </section>
 
       <section

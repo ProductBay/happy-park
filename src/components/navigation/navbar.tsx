@@ -2,18 +2,24 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { Menu, ShoppingBag, X } from "lucide-react";
+import { Map, Menu, ShoppingBag, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site";
 import { cn } from "@/lib/utils/cn";
 import { useHappyParkCart } from "@/lib/cart/cart-provider";
+import { PARK_GATEWAY_OPEN_EVENT } from "@/lib/park-gateway/session";
 
 export function Navbar() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
   const { itemCount, hydrated } = useHappyParkCart();
+
+  function openParkMap() {
+    setOpen(false);
+    window.dispatchEvent(new Event(PARK_GATEWAY_OPEN_EVENT));
+  }
 
   useEffect(() => {
     const handleScroll = () => {
@@ -83,6 +89,15 @@ export function Navbar() {
             </nav>
 
             <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={openParkMap}
+                className="hidden min-h-11 items-center gap-2 rounded-full border border-black/10 bg-white px-4 text-xs font-black text-[var(--hp-forest)] transition hover:bg-black/[0.03] xl:flex"
+              >
+                <Map className="h-4 w-4" />
+                Park Map
+              </button>
+
               <Link
                 href="/cart"
                 aria-label="Shopping cart"
@@ -168,6 +183,15 @@ export function Navbar() {
           </nav>
 
           <div className="mt-10 grid gap-3">
+            <button
+              type="button"
+              onClick={openParkMap}
+              className="flex min-h-14 items-center justify-center gap-2 rounded-full border border-black/10 bg-white px-6 font-bold"
+            >
+              <Map className="h-5 w-5" />
+              Explore Park Map
+            </button>
+
             <Link
               href="/book/visit"
               className="flex min-h-14 items-center justify-center rounded-full bg-[var(--hp-forest)] px-6 font-bold text-white"

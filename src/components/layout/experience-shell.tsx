@@ -5,8 +5,8 @@ import type { ReactNode } from "react";
 import { AnnouncementBar } from "./announcement-bar";
 import { Footer } from "./footer";
 import { Navbar } from "../navigation/navbar";
-import { FloatingWhatsapp } from "../shared/floating-whatsapp";
 import { ClientTourShell } from "../client-tour/client-tour-shell";
+import { ParkGateway } from "../park-gateway";
 
 export function ExperienceShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -14,5 +14,5 @@ export function ExperienceShell({ children }: { children: ReactNode }) {
 
   if (isHerAdmin) return <>{children}</>;
 
-  return <ClientTourShell><AnnouncementBar /><Navbar /><main>{children}</main><Footer /><FloatingWhatsapp /></ClientTourShell>;
+  return <ClientTourShell><ParkGateway /><AnnouncementBar /><Navbar /><main>{children}</main><Footer /></ClientTourShell>;
 }

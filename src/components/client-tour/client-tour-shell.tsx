@@ -2,7 +2,7 @@
 
 import { Suspense, type ReactNode } from "react";
 
-import { ClientTourLauncher } from "./client-tour-launcher";
+import { HappyTools } from "../shared/happy-tools";
 import { ClientTourOverlay } from "./client-tour-overlay";
 import { ClientTourProvider } from "./client-tour-provider";
 
@@ -14,7 +14,7 @@ function ClientTourExperience({
   return (
     <ClientTourProvider>
       {children}
-      <ClientTourLauncher />
+      <HappyTools />
       <ClientTourOverlay />
     </ClientTourProvider>
   );

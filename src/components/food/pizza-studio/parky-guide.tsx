@@ -1,0 +1,6 @@
+import { ChefHat, Sparkles } from "lucide-react";
+
+export function ParkyGuide({ step, toppingCount, fullHouseComplete, hasNaturalJuice }: { step:string;toppingCount:number;fullHouseComplete:boolean;hasNaturalJuice:boolean }) {
+  const message=step==="size"?"Big appetite? Large is a Happy-Park favourite.":step==="base"?"Every great pizza starts with a great base.":step==="toppings"?(fullHouseComplete?"Five ingredients. Full House unlocked!":toppingCount>=3?"Now that's looking serious.":toppingCount?"Great start!":"Give your pizza some personality."):step==="extras"?(hasNaturalJuice?"Fresh choice!":"Want to turn it into a full Happy meal?"):"Your creation is ready for the final check.";
+  return <div className="relative mt-6 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.06] p-4"><Sparkles className="absolute -right-2 -top-2 h-12 w-12 text-orange-400/15"/><div className="flex items-start gap-3"><div className="relative grid h-12 w-12 shrink-0 place-items-center rounded-[40%_40%_48%_48%] bg-orange-500 text-white shadow-lg"><ChefHat className="h-7 w-7"/><span className="absolute -bottom-1 h-2 w-6 rounded-full bg-yellow-300"/></div><div><p className="text-[10px] font-black uppercase tracking-[.18em] text-orange-400">Parky · Pizza guide</p><p className="mt-1 text-sm leading-6 text-white/75">{message}</p></div></div></div>;
+}
