@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { AnnouncementBar } from "@/components/layout/announcement-bar";
-import { Footer } from "@/components/layout/footer";
-import { Navbar } from "@/components/navigation/navbar";
-import { FloatingWhatsapp } from "@/components/shared/floating-whatsapp";
-import { ClientTourShell } from "@/components/client-tour/client-tour-shell";
 import { ClientPreviewGate } from "@/components/client-preview/client-preview-gate";
 import { HappyParkCartProvider } from "@/lib/cart/cart-provider";
+import { ExperienceShell } from "@/components/layout/experience-shell";
 
 export const metadata: Metadata = {
   title: {
@@ -43,17 +39,7 @@ export default function RootLayout({
       <body>
         <HappyParkCartProvider>
           <ClientPreviewGate>
-            <ClientTourShell>
-              <AnnouncementBar />
-              <Navbar />
-
-              <main>
-                {children}
-              </main>
-
-              <Footer />
-              <FloatingWhatsapp />
-            </ClientTourShell>
+            <ExperienceShell>{children}</ExperienceShell>
           </ClientPreviewGate>
         </HappyParkCartProvider>
       </body>

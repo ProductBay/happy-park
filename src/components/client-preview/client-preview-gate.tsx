@@ -29,7 +29,7 @@ import {
 } from "react";
 
 const STORAGE_KEY = "happy-park-client-preview-accepted-v1";
-type ScopeStatus = "preview" | "foundation" | "planned";
+type ScopeStatus = "preview" | "foundation" | "planned" | "concept";
 
 type ScopeGroup = {
   title: string;
@@ -47,6 +47,27 @@ const PROJECT_HOURS = {
 } as const;
 
 const PROJECT_SCOPE: ScopeGroup[] = [
+  {
+    title: "HER Salon & Wellness Integration",
+    description:
+      "A premium secondary experience concept at Happy-Park, presented as an interactive front-end preview.",
+    status: "concept",
+    icon: Sparkles,
+    features: [
+      "Premium HER Experience",
+      "Advanced Hair & Scalp Care",
+      "Natural Hair",
+      "Wellness",
+      "Little HER",
+      "Mom & Me",
+      "Signature Packages",
+      "Guided Booking Journey",
+      "Online Booking Preview",
+      "Online Consultations Preview",
+      "WhatsApp Booking Handoff",
+      "Happy-Park Cross-Experience",
+    ],
+  },
   {
     title: "Destination Experience",
     description:
@@ -780,6 +801,7 @@ function ScopeStatusBadge({ status }: { status: ScopeStatus }) {
     preview: "Preview Ready",
     foundation: "Foundation Built",
     planned: "Production Wiring Planned",
+    concept: "Interactive Concept Preview",
   };
 
   const styles: Record<ScopeStatus, string> = {
@@ -789,6 +811,8 @@ function ScopeStatusBadge({ status }: { status: ScopeStatus }) {
       "border-cyan-300/15 bg-cyan-300/[0.07] text-cyan-200",
     planned:
       "border-blue-300/15 bg-blue-300/[0.07] text-blue-200",
+    concept:
+      "border-amber-200/20 bg-amber-200/[0.08] text-amber-100",
   };
 
   return (

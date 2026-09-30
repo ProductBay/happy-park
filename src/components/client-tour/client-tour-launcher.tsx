@@ -15,10 +15,11 @@ export function ClientTourLauncher() {
     <button
       type="button"
       onClick={startTour}
-      className="fixed bottom-5 right-5 z-[150] inline-flex min-h-12 items-center gap-2 rounded-full border border-white/10 bg-slate-950 px-5 text-xs font-black text-white shadow-2xl transition hover:-translate-y-0.5"
+      aria-label="Start guided tour"
+      title="Start guided tour"
+      className="fixed bottom-20 left-4 z-[150] grid h-12 w-12 place-items-center rounded-full border border-white/10 bg-slate-950 text-white shadow-2xl transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-orange-400 sm:bottom-24 sm:left-6 sm:h-14 sm:w-14"
     >
-      <Compass className="h-4 w-4 text-orange-400" />
-      Guided Tour
+      <Compass className="h-5 w-5 text-orange-400" />
     </button>
   );
 }

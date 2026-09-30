@@ -11,6 +11,8 @@ export const siteConfig = {
     { label: "Visit", href: "/visit" },
     { label: "Parties", href: "/parties" },
     { label: "Food", href: "/food" },
+    { label: "Schools", href: "/schools" },
+    { label: "HER", href: "/her" },
     { label: "Shop", href: "/shop" },
     { label: "About", href: "/about" },
   ],

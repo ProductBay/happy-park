@@ -48,6 +48,7 @@ export function Footer() {
               <Link href="/attractions">Attractions</Link>
               <Link href="/parties">Birthday parties</Link>
               <Link href="/food">Food & pizza</Link>
+              <Link href="/schools">School partners</Link>
               <Link href="/shop">Natural shop</Link>
               <Link href="/track">Track delivery</Link>
             </div>

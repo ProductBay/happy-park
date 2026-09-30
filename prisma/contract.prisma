@@ -532,3 +532,300 @@ model BookingAdmissionFulfillment {
 
   @@index([providerEventId])
 }
+
+// =========================================================
+// SCHOOL PARTNER PROGRAMME
+// Dedicated bulk ordering, billing and aggregate rewards.
+// No student identity or payment data is stored.
+// =========================================================
+enum SchoolPartnerStatus { @@type("pg/text@1") Pending = "pending" UnderReview = "under_review" Approved = "approved" Rejected = "rejected" Suspended = "suspended" }
+enum SchoolOrderStatus { @@type("pg/text@1") Draft = "draft" Submitted = "submitted" UnderReview = "under_review" Confirmed = "confirmed" Preparing = "preparing" ReadyForDelivery = "ready_for_delivery" OutForDelivery = "out_for_delivery" Delivered = "delivered" Completed = "completed" ChangeRequested = "change_requested" Cancelled = "cancelled" Rejected = "rejected" }
+enum SchoolPaymentStatus { @@type("pg/text@1") Unbilled = "unbilled" Invoiced = "invoiced" DueOnDelivery = "due_on_delivery" Paid = "paid" PartiallyPaid = "partially_paid" Overdue = "overdue" Void = "void" }
+enum SchoolPaymentTerms { @@type("pg/text@1") PayOnDelivery = "pay_on_delivery" Prepaid = "prepaid" Net7 = "net_7" Net14 = "net_14" AccountCredit = "account_credit" }
+enum SchoolProductCategory { @@type("pg/text@1") Pizza = "pizza" Batch = "batch" }
+enum SchoolTicketEntryType { @@type("pg/text@1") OrderEarn = "order_earn" VolumeBonus = "volume_bonus" ManualAdjustment = "manual_adjustment" RewardRedemption = "reward_redemption" Reversal = "reversal" Promotion = "promotion" }
+enum SchoolRewardScope { @@type("pg/text@1") Class = "class" School = "school" }
+enum SchoolRedemptionStatus { @@type("pg/text@1") Locked = "locked" Available = "available" Requested = "redemption_requested" Approved = "approved" Redeemed = "redeemed" Rejected = "rejected" }
+
+model SchoolPartner {
+  id Uuid @id @default(uuid())
+  name String
+  schoolType String
+  parish String
+  address String
+  mainTelephone String
+  schoolEmail String
+  principalName String
+  studentPopulation Int
+  classCount Int
+  preferredFrequency String
+  expectedWeeklyParticipation Int
+  deliveryInstructions String?
+  notes String?
+  status SchoolPartnerStatus @default(Pending)
+  paymentTerms SchoolPaymentTerms @default(PayOnDelivery)
+  pizzaPriceOverrideMinor Int?
+  approvedAt DateTime?
+  suspendedAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAt()
+  contacts SchoolContact[]
+  classes SchoolClass[]
+  orders SchoolOrder[]
+  invoices SchoolInvoice[]
+  payments SchoolPayment[]
+  ticketEntries HappyTicketLedger[]
+  redemptions SchoolRewardRedemption[]
+  events SchoolProgrammeEvent[]
+  @@index([status, createdAt])
+  @@index([parish])
+  @@map("school_partners")
+}
+
+model SchoolContact {
+  id Uuid @id @default(uuid())
+  schoolId Uuid
+  name String
+  role String
+  telephone String
+  email String
+  isPrimary Boolean @default(false)
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAt()
+  school SchoolPartner @relation(fields:[schoolId], references:[id], onDelete: Cascade)
+  @@index([schoolId, isActive])
+  @@map("school_contacts")
+}
+
+model SchoolClass {
+  id Uuid @id @default(uuid())
+  schoolId Uuid
+  name String
+  grade String?
+  teacherDisplayName String?
+  isActive Boolean @default(true)
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAt()
+  school SchoolPartner @relation(fields:[schoolId], references:[id], onDelete: Cascade)
+  allocations SchoolOrderClassAllocation[]
+  ticketEntries HappyTicketLedger[]
+  redemptions SchoolRewardRedemption[]
+  @@unique([schoolId, name])
+  @@index([schoolId, isActive])
+  @@map("school_classes")
+}
+
+model SchoolProduct {
+  id Uuid @id @default(uuid())
+  slug String @unique
+  name String
+  description String?
+  category SchoolProductCategory
+  batchSize Int
+  currency String @default("JMD")
+  priceMinor Int
+  imageUrl String?
+  isActive Boolean @default(true)
+  sortOrder Int @default(0)
+  validFrom DateTime?
+  validUntil DateTime?
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAt()
+  orderLines SchoolOrderLine[]
+  @@index([category, isActive, sortOrder])
+  @@map("school_products")
+}
+
+model SchoolOrder {
+  id Uuid @id @default(uuid())
+  schoolId Uuid
+  reference String @unique
+  pizzaFriday Date
+  status SchoolOrderStatus @default(Draft)
+  paymentStatus SchoolPaymentStatus @default(Unbilled)
+  paymentTerms SchoolPaymentTerms @default(PayOnDelivery)
+  currency String @default("JMD")
+  subtotalMinor Int @default(0)
+  discountMinor Int @default(0)
+  deliveryMinor Int @default(0)
+  taxMinor Int @default(0)
+  totalMinor Int @default(0)
+  deliveryAddress String
+  deliveryContactName String
+  deliveryTelephone String
+  deliveryWindow String
+  deliveryInstructions String?
+  idempotencyKey String? @unique
+  submittedAt DateTime?
+  confirmedAt DateTime?
+  deliveredAt DateTime?
+  deliveredBy String?
+  recipientName String?
+  recipientRole String?
+  deliveryNote String?
+  cancelledAt DateTime?
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAt()
+  school SchoolPartner @relation(fields:[schoolId], references:[id], onDelete: Restrict)
+  lines SchoolOrderLine[]
+  allocations SchoolOrderClassAllocation[]
+  invoice SchoolInvoice?
+  payments SchoolPayment[]
+  ticketEntries HappyTicketLedger[]
+  @@index([schoolId, pizzaFriday])
+  @@index([pizzaFriday, status])
+  @@index([paymentStatus])
+  @@map("school_orders")
+}
+
+model SchoolOrderLine {
+  id Uuid @id @default(uuid())
+  orderId Uuid
+  productId Uuid?
+  productSlug String
+  productName String
+  productDescription String?
+  category SchoolProductCategory
+  batchSize Int
+  currency String
+  unitPriceMinor Int
+  quantity Int
+  subtotalMinor Int
+  createdAt DateTime @default(now())
+  order SchoolOrder @relation(fields:[orderId], references:[id], onDelete: Cascade)
+  product SchoolProduct? @relation(fields:[productId], references:[id], onDelete: SetNull)
+  @@index([orderId])
+  @@index([productId])
+  @@map("school_order_lines")
+}
+
+model SchoolOrderClassAllocation {
+  id Uuid @id @default(uuid())
+  orderId Uuid
+  classId Uuid
+  pizzaBoxes Int
+  createdAt DateTime @default(now())
+  order SchoolOrder @relation(fields:[orderId], references:[id], onDelete: Cascade)
+  schoolClass SchoolClass @relation(fields:[classId], references:[id], onDelete: Restrict)
+  @@unique([orderId, classId])
+  @@index([classId])
+  @@map("school_order_class_allocations")
+}
+
+model SchoolInvoice {
+  id Uuid @id @default(uuid())
+  schoolId Uuid
+  orderId Uuid @unique
+  invoiceNumber String @unique
+  status SchoolPaymentStatus @default(Invoiced)
+  currency String @default("JMD")
+  subtotalMinor Int
+  discountMinor Int @default(0)
+  deliveryMinor Int @default(0)
+  taxMinor Int @default(0)
+  totalMinor Int
+  paidMinor Int @default(0)
+  issuedAt DateTime @default(now())
+  dueAt DateTime?
+  idempotencyKey String @unique
+  school SchoolPartner @relation(fields:[schoolId], references:[id], onDelete: Restrict)
+  order SchoolOrder @relation(fields:[orderId], references:[id], onDelete: Restrict)
+  payments SchoolPayment[]
+  @@index([schoolId, status])
+  @@map("school_invoices")
+}
+
+model SchoolPayment {
+  id Uuid @id @default(uuid())
+  schoolId Uuid
+  orderId Uuid
+  invoiceId Uuid
+  amountMinor Int
+  currency String @default("JMD")
+  method String
+  reference String?
+  recordedById String?
+  recordedByName String?
+  paidAt DateTime @default(now())
+  idempotencyKey String @unique
+  school SchoolPartner @relation(fields:[schoolId], references:[id], onDelete: Restrict)
+  order SchoolOrder @relation(fields:[orderId], references:[id], onDelete: Restrict)
+  invoice SchoolInvoice @relation(fields:[invoiceId], references:[id], onDelete: Restrict)
+  @@index([invoiceId, paidAt])
+  @@map("school_payments")
+}
+
+model HappyTicketLedger {
+  id Uuid @id @default(uuid())
+  schoolId Uuid
+  classId Uuid?
+  orderId Uuid?
+  type SchoolTicketEntryType
+  quantity Int
+  reason String
+  businessKey String @unique
+  createdById String?
+  metadata Json?
+  createdAt DateTime @default(now())
+  school SchoolPartner @relation(fields:[schoolId], references:[id], onDelete: Restrict)
+  schoolClass SchoolClass? @relation(fields:[classId], references:[id], onDelete: Restrict)
+  order SchoolOrder? @relation(fields:[orderId], references:[id], onDelete: Restrict)
+  @@index([schoolId, createdAt])
+  @@index([classId, createdAt])
+  @@map("happy_ticket_ledger")
+}
+
+model SchoolRewardDefinition {
+  id Uuid @id @default(uuid())
+  name String
+  description String
+  ticketThreshold Int
+  rewardType String
+  rewardValue Json?
+  scope SchoolRewardScope
+  redemptionRules Json?
+  isActive Boolean @default(true)
+  validFrom DateTime?
+  validUntil DateTime?
+  createdAt DateTime @default(now())
+  updatedAt temporal.updatedAt()
+  redemptions SchoolRewardRedemption[]
+  @@index([scope, isActive, ticketThreshold], name: "school_rewards_scope_threshold")
+  @@map("school_reward_definitions")
+}
+
+model SchoolRewardRedemption {
+  id Uuid @id @default(uuid())
+  schoolId Uuid
+  classId Uuid?
+  rewardDefinitionId Uuid
+  status SchoolRedemptionStatus @default(Requested)
+  ticketsConsumed Int @default(0)
+  requestedAt DateTime @default(now())
+  approvedAt DateTime?
+  redeemedAt DateTime?
+  approvedById String?
+  relatedBookingId Uuid?
+  idempotencyKey String @unique
+  school SchoolPartner @relation(fields:[schoolId], references:[id], onDelete: Restrict)
+  schoolClass SchoolClass? @relation(fields:[classId], references:[id], onDelete: Restrict)
+  rewardDefinition SchoolRewardDefinition @relation(fields:[rewardDefinitionId], references:[id], onDelete: Restrict)
+  @@index([schoolId, status])
+  @@map("school_reward_redemptions")
+}
+
+model SchoolProgrammeEvent {
+  id Uuid @id @default(uuid())
+  schoolId Uuid
+  type String
+  actorType String?
+  actorId String?
+  description String?
+  metadata Json?
+  createdAt DateTime @default(now())
+  school SchoolPartner @relation(fields:[schoolId], references:[id], onDelete: Cascade)
+  @@index([schoolId, createdAt])
+  @@index([type, createdAt])
+  @@map("school_programme_events")
+}

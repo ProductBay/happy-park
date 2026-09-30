@@ -10,6 +10,8 @@ import { ValueStrip } from "@/components/home/value-strip";
 import { VisitCta } from "@/components/home/visit-cta";
 import { VisitPlanner } from "@/components/home/visit-planner";
 import { WhatsappCta } from "@/components/home/whatsapp-cta";
+import { HerHomeDiscovery } from "@/components/her/her-home-discovery";
+import { FoodDeliveryZone } from "@/components/food/food-delivery-zone";
 
 export default function Home() {
   return (
@@ -30,9 +32,13 @@ export default function Home() {
 
       <CommerceFeature />
 
+      <FoodDeliveryZone />
+
       <SlydeDelivery />
 
       <ReviewsSection />
+
+      <HerHomeDiscovery />
 
       <VisitCta />
 
@@ -40,3 +46,4 @@ export default function Home() {
     </>
   );
 }
+

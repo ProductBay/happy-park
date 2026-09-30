@@ -151,6 +151,60 @@ a {
   border-color: rgba(22, 75, 51, 0.16);
 }
 
+/* HER Salon & Wellness — scoped client-preview visual system */
+.her-surface {
+  --her-green: #173d32;
+  --her-ivory: #fffaf0;
+  --her-gold: #b28a4d;
+  --her-blush: #d7b7aa;
+  background:
+    radial-gradient(circle at 92% 8%, rgba(215, 183, 170, 0.2), transparent 25rem),
+    radial-gradient(circle at 4% 36%, rgba(178, 138, 77, 0.1), transparent 28rem),
+    var(--her-ivory);
+}
+
+.her-kicker {
+  color: #9a743e;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.her-hero-glow {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle at 78% 32%, rgba(223, 196, 141, 0.18), transparent 22rem),
+    linear-gradient(125deg, rgba(255, 255, 255, 0.03), transparent 45%);
+}
+
+.her-botanical {
+  position: absolute;
+  width: 28rem;
+  height: 28rem;
+  border: 1px solid rgba(178, 138, 77, 0.2);
+  border-radius: 70% 30% 62% 38% / 38% 65% 35% 62%;
+  transform: rotate(28deg);
+  pointer-events: none;
+}
+
+.her-botanical::after {
+  content: "";
+  position: absolute;
+  inset: 3.2rem;
+  border: 1px solid rgba(178, 138, 77, 0.14);
+  border-radius: inherit;
+}
+
+.her-botanical-left { left: -18rem; top: 4rem; }
+.her-botanical-right { right: -12rem; top: 10rem; }
+
+@media (max-width: 640px) {
+  .her-botanical { width: 18rem; height: 18rem; }
+  .her-botanical-right { right: -11rem; top: 8rem; }
+}
+
 /* =========================================================
    HAPPY-PARK MEDIA EXPERIENCE
    ========================================================= */
